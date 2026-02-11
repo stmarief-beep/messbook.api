@@ -27,6 +27,8 @@ const Settlement = sequelize.define('Settlement', {
         type: DataTypes.INTEGER,
         allowNull: false
     }
+}, {
+    tableName: 'settlements'
 });
 
 module.exports = Settlement;
