@@ -37,6 +37,8 @@ const Expense = sequelize.define('Expense', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     }
+}, {
+    tableName: 'expenses'
 });
 
 module.exports = Expense;
