@@ -24,6 +24,8 @@ const User = sequelize.define('User', {
         type: DataTypes.ENUM('admin', 'user'),
         defaultValue: 'user'
     }
+}, {
+    tableName: 'users'
 });
 
 module.exports = User;
