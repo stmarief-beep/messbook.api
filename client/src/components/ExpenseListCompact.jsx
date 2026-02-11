@@ -2,11 +2,7 @@ import { useEffect } from 'react';
 import { useExpense } from '../context/ExpenseContext';
 
 const ExpenseListCompact = ({ onExpenseClick, filter }) => {
-    const { expenses, fetchExpenses } = useExpense();
-
-    useEffect(() => {
-        fetchExpenses();
-    }, []);
+    const { expenses } = useExpense();
 
     const filteredExpenses = filter ? expenses.filter(filter) : expenses;
 
