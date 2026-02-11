@@ -282,12 +282,103 @@ const deleteExpense = async (req, res) => {
     }
 };
 
+// Get consolidated dashboard data
+const getDashboardData = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const membership = await MessMember.findOne({ where: { user_id: userId } });
+
+        if (!membership) {
+            return res.status(400).json({ message: 'No mess found' });
+        }
+
+        const messId = membership.mess_id;
+
+        // Date ranges
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        // Fetch all data in parallel
+        const [allExpenses, users] = await Promise.all([
+            Expense.findAll({
+                where: { mess_id: messId },
+                order: [['date', 'DESC']]
+            }),
+            User.findAll({
+                attributes: ['id', 'name']
+            })
+        ]);
+
+        // Filter for current month
+        const monthlyExpenses = allExpenses.filter(exp => {
+            const expDate = new Date(exp.date);
+            return expDate >= startOfMonth && expDate <= endOfMonth;
+        });
+
+        // 1. Summary
+        const total = monthlyExpenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+        const summary = {
+            total: total.toFixed(2),
+            period: `${startOfMonth.getDate()} ${startOfMonth.toLocaleString('default', { month: 'short' })} - ${endOfMonth.getDate()} ${endOfMonth.toLocaleString('default', { month: 'short' })}`,
+            startDate: startOfMonth,
+            endDate: endOfMonth
+        };
+
+        // 2. Categories
+        const categoriesMap = {};
+        monthlyExpenses.forEach(exp => {
+            const type = exp.type || 'General';
+            categoriesMap[type] = (categoriesMap[type] || 0) + parseFloat(exp.amount);
+        });
+        const categories = Object.keys(categoriesMap).map(cat => ({
+            category: cat,
+            amount: categoriesMap[cat].toFixed(2),
+            percentage: total > 0 ? ((categoriesMap[cat] / total) * 100).toFixed(1) : 0
+        }));
+
+        // 3. Contributors
+        const contributorsMap = {};
+        monthlyExpenses.forEach(exp => {
+            if (exp.user_id) {
+                contributorsMap[exp.user_id] = (contributorsMap[exp.user_id] || 0) + parseFloat(exp.amount);
+            }
+        });
+        const contributors = Object.keys(contributorsMap).map(uid => {
+            const user = users.find(u => u.id === parseInt(uid));
+            return {
+                userId: parseInt(uid),
+                name: user ? user.name : 'Unknown',
+                amount: contributorsMap[uid].toFixed(2)
+            };
+        }).sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount));
+
+        // 4. Recent Expenses (limit to 10)
+        const recentExpenses = allExpenses.slice(0, 10).map(e => ({
+            ...e.toJSON(),
+            added_by: e.user_id ? (users.find(u => u.id === e.user_id)?.name || 'Unknown') : 'Guest'
+        }));
+
+        res.json({
+            summary,
+            categories,
+            contributors,
+            recentExpenses
+        });
+
+    } catch (error) {
+        console.error('Error in getDashboardData:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     addExpense,
     getMessExpenses,
     getExpenseSummary,
     getCategoryBreakdown,
     getTopContributors,
+    getDashboardData,
     updateExpense,
     deleteExpense
 };
