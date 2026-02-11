@@ -19,6 +19,8 @@ const MessMember = sequelize.define('MessMember', {
         type: DataTypes.ENUM('pending', 'active', 'disabled'),
         defaultValue: 'pending'
     }
+}, {
+    tableName: 'messmembers'
 });
 
 module.exports = MessMember;
