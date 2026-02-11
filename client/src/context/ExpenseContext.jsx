@@ -11,7 +11,25 @@ export const ExpenseProvider = ({ children }) => {
     const { user } = useAuth();
     const { mess } = useMess();
     const [expenses, setExpenses] = useState([]);
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [loadingDashboard, setLoadingDashboard] = useState(false);
+
+    const fetchDashboardData = async () => {
+        if (!mess) return;
+        setLoadingDashboard(true);
+        const token = localStorage.getItem('token');
+        try {
+            const res = await axios.get('/expenses/dashboard', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setDashboardData(res.data);
+            setExpenses(res.data.recentExpenses); // Sync expenses too
+        } catch (error) {
+            console.error("Failed to fetch dashboard data", error);
+        }
+        setLoadingDashboard(false);
+    };
 
     const fetchExpenses = async () => {
         if (!mess) return;
@@ -58,7 +76,17 @@ export const ExpenseProvider = ({ children }) => {
     };
 
     return (
-        <ExpenseContext.Provider value={{ expenses, fetchExpenses, addExpense, updateExpense, deleteExpense, loading }}>
+        <ExpenseContext.Provider value={{
+            expenses,
+            fetchExpenses,
+            dashboardData,
+            fetchDashboardData,
+            loadingDashboard,
+            addExpense,
+            updateExpense,
+            deleteExpense,
+            loading
+        }}>
             {children}
         </ExpenseContext.Provider>
     );
