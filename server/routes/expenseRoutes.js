@@ -5,6 +5,7 @@ const {
     getExpenseSummary,
     getCategoryBreakdown,
     getTopContributors,
+    getDashboardData,
     updateExpense,
     deleteExpense
 } = require('../controllers/expenseController');
@@ -17,6 +18,7 @@ router.get('/all', authMiddleware, getMessExpenses);
 router.get('/summary', authMiddleware, getExpenseSummary);
 router.get('/categories', authMiddleware, getCategoryBreakdown);
 router.get('/contributors', authMiddleware, getTopContributors);
+router.get('/dashboard', authMiddleware, getDashboardData);
 router.put('/:id', authMiddleware, updateExpense);
 router.delete('/:id', authMiddleware, deleteExpense);
 
