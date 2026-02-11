@@ -8,21 +8,19 @@ const register = async (req, res) => {
     try {
         const { name, email, password, role, groupCode } = req.body;
 
-        // Validation for Group Code
-        if (!groupCode) {
-            return res.status(400).json({ message: 'Group Code is required' });
-        }
-
-        // Check if Mess exists with this code
-        const mess = await Mess.findOne({ where: { unique_code: groupCode } });
-        if (!mess) {
-            return res.status(400).json({ message: 'Invalid Group Code' });
-        }
-
         // Check if user exists
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
+        }
+
+        let mess = null;
+        if (groupCode) {
+            // Check if Mess exists with this code
+            mess = await Mess.findOne({ where: { unique_code: groupCode } });
+            if (!mess) {
+                return res.status(400).json({ message: 'Invalid Group Code' });
+            }
         }
 
         // Hash password
@@ -37,12 +35,14 @@ const register = async (req, res) => {
             role: role || 'user'
         });
 
-        // Join Mess
-        await MessMember.create({
-            mess_id: mess.id,
-            user_id: newUser.id,
-            status: 'active'
-        });
+        // Join Mess if code was provided
+        if (mess) {
+            await MessMember.create({
+                mess_id: mess.id,
+                user_id: newUser.id,
+                status: 'active'
+            });
+        }
 
         // Generate Token
         const token = jwt.sign({ id: newUser.id, role: newUser.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
