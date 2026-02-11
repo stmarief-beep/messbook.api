@@ -1,29 +1,9 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useExpense } from '../context/ExpenseContext';
 
 const ExpenseSummaryCard = () => {
-    const [summary, setSummary] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { dashboardData } = useExpense();
+    const summary = dashboardData?.summary;
 
-    useEffect(() => {
-        fetchSummary();
-    }, []);
-
-    const fetchSummary = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('/expenses/summary', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setSummary(res.data);
-        } catch (error) {
-            console.error('Failed to fetch summary', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (loading) return <div className="h-32 bg-gray-200 animate-pulse rounded-lg"></div>;
     if (!summary) return null;
 
     return (
