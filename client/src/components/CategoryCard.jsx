@@ -1,38 +1,8 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useExpense } from '../context/ExpenseContext';
 
 const CategoryCard = () => {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('/expenses/categories', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setCategories(res.data);
-        } catch (error) {
-            console.error('Failed to fetch categories', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getCategoryColor = (category) => {
-        const colors = {
-            'Mess': { bg: 'bg-yellow-400', text: 'text-yellow-600' },
-            'General': { bg: 'bg-blue-400', text: 'text-blue-600' },
-            'Utilities': { bg: 'bg-green-400', text: 'text-green-600' }
-        };
-        return colors[category] || { bg: 'bg-gray-400', text: 'text-gray-600' };
-    };
-
-    if (loading) return <div className="h-48 bg-gray-200 animate-pulse rounded-lg"></div>;
+    const { dashboardData } = useExpense();
+    const categories = dashboardData?.categories || [];
 
     return (
         <div className="bg-white rounded-lg p-6 shadow-sm">
