@@ -1,3 +1,3 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = 'https://messbook-api.onrender.com/api';
 
 export default API_URL;
