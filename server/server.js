@@ -35,8 +35,8 @@ app.use('/api/users', userRoutes);
 const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Catch-all route to serve the frontend for any non-API requests
-app.get('/:path*', (req, res) => {
+// Catch-all middleware to serve the frontend for any non-API requests
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
