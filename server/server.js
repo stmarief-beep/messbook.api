@@ -36,7 +36,7 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Catch-all route to serve the frontend for any non-API requests
-app.get('(.*)', (req, res) => {
+app.get('/:path*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
