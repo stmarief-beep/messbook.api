@@ -57,14 +57,13 @@ const Register = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block mb-1">Group Code</label>
+                    <label className="block mb-1">Group Code (Optional)</label>
                     <input
                         type="text"
                         className="w-full border p-2 rounded"
                         value={groupCode}
                         onChange={(e) => setGroupCode(e.target.value)}
                         placeholder="Enter code to join a mess"
-                        required
                     />
                 </div>
                 <button className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Register</button>
