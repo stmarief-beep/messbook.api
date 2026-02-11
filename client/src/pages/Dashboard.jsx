@@ -13,8 +13,8 @@ import SharedExpensesModal from '../components/SharedExpensesModal';
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
-    const { mess, loading } = useMess();
-    const { fetchExpenses } = useExpense();
+    const { mess, loading: messLoading } = useMess();
+    const { fetchDashboardData, loadingDashboard } = useExpense();
     const navigate = useNavigate();
 
     const [showCreate, setShowCreate] = useState(false);
@@ -56,7 +56,13 @@ const Dashboard = () => {
         }
     };
 
-    if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    useEffect(() => {
+        if (mess) {
+            fetchDashboardData();
+        }
+    }, [mess]);
+
+    if (messLoading || loadingDashboard) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
     // If no mess, show join/create options
     if (!mess) {
@@ -287,7 +293,7 @@ const Dashboard = () => {
             {/* Modals */}
             {showAddExpense && <AddExpenseModal onClose={() => {
                 setShowAddExpense(false);
-                fetchExpenses();
+                fetchDashboardData();
             }} />}
 
             {selectedExpense && (
@@ -295,7 +301,7 @@ const Dashboard = () => {
                     expense={selectedExpense}
                     onClose={() => setSelectedExpense(null)}
                     onUpdate={() => {
-                        fetchExpenses();
+                        fetchDashboardData();
                         setSelectedExpense(null);
                     }}
                 />
