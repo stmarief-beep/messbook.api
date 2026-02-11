@@ -24,6 +24,8 @@ const Mess = sequelize.define('Mess', {
         type: DataTypes.TEXT,
         allowNull: true
     }
+}, {
+    tableName: 'messes'
 });
 
 module.exports = Mess;
