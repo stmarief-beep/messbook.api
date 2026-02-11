@@ -1,38 +1,9 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useExpense } from '../context/ExpenseContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
 const ContributorChart = () => {
-    const [contributors, setContributors] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchContributors();
-    }, []);
-
-    const fetchContributors = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('/expenses/contributors', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setContributors(res.data);
-        } catch (error) {
-            console.error('Failed to fetch contributors', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
-
-    const chartData = contributors.map((c, index) => ({
-        name: c.name,
-        value: parseFloat(c.amount),
-        color: COLORS[index % COLORS.length]
-    }));
-
-    if (loading) return <div className="h-64 bg-gray-200 animate-pulse rounded-lg"></div>;
+    const { dashboardData } = useExpense();
+    const contributors = dashboardData?.contributors || [];
 
     return (
         <div className="bg-white rounded-lg p-6 shadow-sm">
